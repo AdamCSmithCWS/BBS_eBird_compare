@@ -6,7 +6,7 @@ library(bbsBayes2)
 library(terra)
 library(sf)
 
-map_single_program <- TRUE
+map_single_program <- FALSE
 
 species <- "Wood Thrush"
 
@@ -15,6 +15,14 @@ species <- "Louisiana Waterthrush"
 species <- "Eastern Bluebird"
 
 species <- "Western/Eastern Cattle Egret"
+
+species_1 <- c("Eastern Bluebird",
+             "Cooper's Hawk",
+             #"Mourning Dove",
+             "Carolina Wren")
+
+for(species in species_1){
+
 
 path <- ebirdst_download_trends(species)
 
@@ -69,16 +77,16 @@ if(species == "Western/Eastern Cattle Egret"){
 aou <- as.integer(search_species(species)["aou"])
 fit <- readRDS(paste0("output/fit_",aou,".rds"))
 
-indices <- generate_indices(fit,hpdi = TRUE)
- saveRDS(indices,
-         file = paste0("output/inds_",aou,".rds"))
+# indices <- generate_indices(fit,hpdi = TRUE)
+#  saveRDS(indices,
+#          file = paste0("output/inds_",aou,".rds"))
 
  indices <- readRDS(paste0("output/inds_",aou,".rds"))
  traj <- plot_indices(indices,
                       add_observed_means = TRUE)
 
  trends <- generate_trends(indices,
-                          slope = FALSE,hpdi = TRUE)
+                          slope = TRUE,hpdi = TRUE)
 
 map_trends_bbs <- latlong %>% 
   inner_join(.,trends$trends,
@@ -117,5 +125,6 @@ map <- ggplot(map_trends_both) +
 pdf(file = paste0("trend_comparison_",species,".pdf"),
     width = 11,
     height = 8.5)
-map
+print(map)
 dev.off()
+}

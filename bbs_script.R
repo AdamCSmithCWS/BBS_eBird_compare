@@ -10,14 +10,17 @@ setwd("C:/github/BBS_ebird_compare")
 sp_list <- readRDS("species_list.rds") %>%
   filter(model == TRUE)
 
-
+species <- c("Eastern Bluebird",
+             "Cooper's Hawk",
+             "Mourning Dove",
+             "Carolina Wren")
 
 # build cluster -----------------------------------------------------------
 
    #for(i in 1:4){
 
-
-    sp <- "Cattle Egret"
+for(sp in species[c(4,3)]){#
+    #sp <- "Cattle Egret"
     
 i = which(sp_list[,"english"] == sp)
 aou <- as.integer(sp_list[i,"aou"])
@@ -70,4 +73,4 @@ fit <- run_model(model_data = bbs_dat,
                  output_dir = "output",
                  output_basename = paste0("fit_",aou))
 
-
+}
