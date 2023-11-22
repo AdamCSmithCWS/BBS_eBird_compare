@@ -122,7 +122,7 @@ map <- ggplot(map_trends_both) +
   theme(legend.position = "bottom")+
   facet_wrap(vars(survey))
 
-pdf(file = paste0("trend_comparison_",species,".pdf"),
+pdf(file = paste0("Figures/trend_comparison_",species,".pdf"),
     width = 11,
     height = 8.5)
 print(map)
