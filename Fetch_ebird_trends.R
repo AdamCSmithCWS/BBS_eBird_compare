@@ -70,10 +70,15 @@ map_ebird <- ggplot(map_trends_latlong) +
 map_ebird
 }
 
+
+
+
 if(species == "Western/Eastern Cattle Egret"){
   species <- "Cattle Egret"
 }
 # load BBS results --------------------------------------------------------
+## these results are produced using the "bbs_script.R" and the 
+## package bbsBayes2. 
 aou <- as.integer(search_species(species)["aou"])
 fit <- readRDS(paste0("output/fit_",aou,".rds"))
 

@@ -1,8 +1,10 @@
 ## testing bbsBayes2 parallel in HRE env
 
-shhh <- suppressPackageStartupMessages # so I don't get a bunch of start up messages in the output file, a tip I encountered while searching through StackOverflow...
-shhh(library(bbsBayes2))
-shhh(library(tidyverse))
+library(bbsBayes2)
+library(tidyverse)
+library(foreach)
+library(doParallel)
+
 
 setwd("C:/github/BBS_ebird_compare")
 
@@ -15,30 +17,37 @@ species <- c("Eastern Bluebird",
              "Mourning Dove",
              "Carolina Wren")
 
+species <- c("Barn Swallow",
+             "Tree Swallow",
+             "")
+
 # build cluster -----------------------------------------------------------
+# allowing multiple species at once if > 8 cores are available to run
+# 
 
-   #for(i in 1:4){
+n_species <- floor((detectCores()-1)/4) # requires 4 cores per species
+  
+cluster <- makeCluster(n_species, type = "PSOCK")
+registerDoParallel(cluster)
 
-for(sp in species[c(4,3)]){#
-    #sp <- "Cattle Egret"
+
+test <- foreach(sp = species, #nrow(sp_list),
+                .packages = c("bbsBayes2",
+                              "tidyverse",
+                              "cmdstanr"),
+                .errorhandling = "pass") %dopar%
+  {
     
+    
+#for(sp in species[c(4,3)]){#
+ 
 i = which(sp_list[,"english"] == sp)
+#sp = sp_list[i,"english"]
+
 aou <- as.integer(sp_list[i,"aou"])
 
 
-# identifying first years for selected species ----------------------------
-    fy <- 2012
-    # if(aou %in% c(4661,4660)){ #Alder and Willow Flycatcher
-    #   fy <- 1978 #5 years after the split
-    # }
-    # if(aou %in% c(10,11,22860)){ # Clark's and Western Grebe and EUCD
-    #   fy <- 1990 #5 years after the split and first year EUCD observed on > 3 BBS routes
-    # }
-    # if(aou == 6121){ # CAve Swallow
-    #   fy = 1985
-    # }
-
-
+   fy <- 2012
 
    strat <- "latlong"
 
@@ -46,7 +55,7 @@ aou <- as.integer(sp_list[i,"aou"])
               species = sp,
               quiet = TRUE) %>%
   prepare_data(min_n_routes = 1,
-               min_max_route_years = 2,
+               min_max_route_years = 1,
                quiet = TRUE,
                min_year = fy)
 
@@ -66,11 +75,16 @@ aou <- as.integer(sp_list[i,"aou"])
                      model_variant = "hier")
    }
 
+   ## fit and save model output
 fit <- run_model(model_data = bbs_dat,
-                 refresh = 200,
+                 refresh = 500,
                  #iter_warmup = 300,
                  #iter_sampling = 100,
                  output_dir = "output",
                  output_basename = paste0("fit_",aou))
 
-}
+  }
+
+stopCluster(cluster)
+
+
