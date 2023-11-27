@@ -10,16 +10,12 @@ setwd("C:/github/BBS_ebird_compare")
 
 
 sp_list <- readRDS("species_list.rds") %>%
-  filter(model == TRUE)
+  filter(model == TRUE) %>% 
+  mutate(sp_ebird <- ebirdst::get_species(english)) %>% 
+  na.omit()
 
-species <- c("Eastern Bluebird",
-             "Cooper's Hawk",
-             "Mourning Dove",
-             "Carolina Wren")
+species <- which(sp_list$vm %in% c(4,5))
 
-species <- c("Barn Swallow",
-             "Tree Swallow",
-             "")
 
 # build cluster -----------------------------------------------------------
 # allowing multiple species at once if > 8 cores are available to run
@@ -31,7 +27,7 @@ cluster <- makeCluster(n_species, type = "PSOCK")
 registerDoParallel(cluster)
 
 
-test <- foreach(sp = species, #nrow(sp_list),
+test <- foreach(i = species, #nrow(sp_list),
                 .packages = c("bbsBayes2",
                               "tidyverse",
                               "cmdstanr"),
@@ -41,8 +37,8 @@ test <- foreach(sp = species, #nrow(sp_list),
     
 #for(sp in species[c(4,3)]){#
  
-i = which(sp_list[,"english"] == sp)
-#sp = sp_list[i,"english"]
+#i = which(sp_list[,"english"] == sp)
+sp = sp_list[i,"english"]
 
 aou <- as.integer(sp_list[i,"aou"])
 
