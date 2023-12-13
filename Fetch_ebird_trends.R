@@ -13,7 +13,7 @@ sp_list <- readRDS("species_list.rds") %>%
   mutate(sp_ebird <- ebirdst::get_species(english)) %>% 
   na.omit()
 
-species_1 <- which(sp_list$vm < 6,"english")
+species_1 <- 1:nrow(sp_list)
 calcu_indices <- FALSE
 
 pdf(file = paste0("Figures/trend_comparisons.pdf"),
@@ -121,6 +121,7 @@ map_bbs
 
 
 map_trends_both <- bind_rows(map_trends_latlong,map_trends_bbs)
+saveRDS(map_trends_both,paste0("trends/",aou,"_bbs_eBird_trends.rds"))
 
 ### apply consistent colour palette and break
 

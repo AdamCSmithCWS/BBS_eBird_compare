@@ -14,8 +14,11 @@ sp_list <- readRDS("species_list.rds") %>%
   mutate(sp_ebird <- ebirdst::get_species(english)) %>% 
   na.omit()
 
-species <- which(sp_list$vm %in% c(4,5))
+#species <- which(sp_list$vm %in% c(4,5))
+species <- 1:nrow(sp_list)
 
+
+re_run <- FALSE # set to true to re-run any species that have results in output folder
 
 # build cluster -----------------------------------------------------------
 # allowing multiple species at once if > 8 cores are available to run
@@ -41,7 +44,7 @@ test <- foreach(i = species, #nrow(sp_list),
 sp = sp_list[i,"english"]
 
 aou <- as.integer(sp_list[i,"aou"])
-
+ if(!file.exists(paste0("output/fit_",aou,".rds")) | re_run){
 
    fy <- 2012
 
@@ -79,6 +82,7 @@ fit <- run_model(model_data = bbs_dat,
                  output_dir = "output",
                  output_basename = paste0("fit_",aou))
 
+}# end if file exists
   }
 
 stopCluster(cluster)
